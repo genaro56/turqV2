@@ -1,0 +1,39 @@
+.circle-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.marker {
+  width: 10px;
+  height: 34px;
+  background-color: black;
+  position: absolute;
+  bottom: -12px;
+}
+
+.bar {
+  background-color: black;
+  height: 17%;
+  width: 0.5px;
+  flex-basis: 101%;
+  position: absolute;
+  bottom: -5px;
+}
+
+.separator {
+  background-color: transparent;
+  width: 0.5px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 51%;
+  bottom: 0;
+}
+.banner {
+  margin-top: 20px;
+}
+
+label {
+  color: black;
+}
