@@ -6,8 +6,9 @@ import PropTypes from "prop-types";
 import './goalRingStyles.scss';
 
 const GoalRing = ({ currentFunding }) => {
-  const currentFundingDecimal = currentFunding / 100;
-  const currentTier = React.useRef('Bronze');
+  const currentFundingDecimal = currentFunding / 100; // funding to decimal value.
+  const currentTier = React.useRef('Bronze'); // current tier.
+  const [isGoalComplete, setIsGoalComplete] = React.useState(false); // boolean to check if the goal is reached.
   const gradientId = "contest-prize";
   const [barColor, setBarColor] = React.useState({
     start: '#40E0D0', end: '#CD7F32',
@@ -19,16 +20,25 @@ const GoalRing = ({ currentFunding }) => {
     Gold: { min: 351.00, max: 500 },
   }
 
+  // iterates through the keys to select a tier.
   const getTier = () => Object.keys(tiers).find(key => currentFundingDecimal >= tiers[key].min && currentFundingDecimal <= tiers[key].max)
 
   React.useEffect(() => {
     if (currentFunding) {
       currentTier.current = getTier();
 
+      // verify and update the gradient colors
       if (currentTier.current === 'Silver') {
         setBarColor({ start: '#CD7F32', end: '#C0C0C0'})
       } else if (currentTier.current === 'Gold') {
         setBarColor({ start: '#C0C0C0', end: '#D4AF37'})
+      }
+      
+      // check if the goal has been completed.
+      if (currentFunding / 100 === tiers[currentTier.current].max) {
+        setIsGoalComplete(true);
+      } else {
+        setIsGoalComplete(false);
       }
     }
     return () => { }
@@ -38,13 +48,20 @@ const GoalRing = ({ currentFunding }) => {
     return ((currentFunding / tiers[currentTier.current].max) * 270) / 75
   }
 
+  function calculateGradientDegrees() {
+    const percentage = (currentFunding / tiers[currentTier.current].max);
+    const rotation = (percentage * 180) / 100; 
+    const offset = percentage <= 50 ? '100%' : '50%';
+    return { rotation, offset }
+  }
+
   return (
     <div className="ring-wrapper">
       <svg style={{ height: 0 }}>
         <defs>
-          <linearGradient id={gradientId} gradientTransform="rotate(120)">
+          <linearGradient id={gradientId} gradientTransform={`rotate(${calculateGradientDegrees().rotation})`}>
             <stop offset="0%" stopColor={barColor.start} />
-            <stop offset="50%" stopColor={barColor.end} />
+            <stop offset={calculateGradientDegrees().offset} stopColor={barColor.end} />
           </linearGradient>
         </defs>
       </svg>
@@ -87,8 +104,8 @@ const GoalRing = ({ currentFunding }) => {
         </div>
         <div className="marker" />
       </CircularProgressbarWithChildren>
-      <span class="banner">{`${currentTier.current} Goal`}</span>
-      <span class="goal-number">{Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(tiers[currentTier.current].max)}</span>
+      {!isGoalComplete && <span class="top-banner">{`${currentTier.current} Goal`}</span>}
+      <span style={isGoalComplete ? { color: '#38B7AA', marginTop: '20px'} : { color: 'black' }} class="goal-number">{Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(tiers[currentTier.current].max)}</span>
     </div>
   )
 }
