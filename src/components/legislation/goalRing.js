@@ -1,5 +1,6 @@
-import React from "react"
-import { CircularProgressbar, CircularProgressbarWithChildren, RadialSeparators, buildStyles } from 'react-circular-progressbar';
+import React from "react";
+import ReactDOM from 'react-dom';
+import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import PropTypes from "prop-types";
 import './goalRingStyles.scss';
@@ -7,28 +8,27 @@ import './goalRingStyles.scss';
 const GoalRing = ({ currentFunding }) => {
   const currentFundingDecimal = currentFunding / 100;
   const currentTier = React.useRef('Bronze');
-  const [barColor, setBarColor] = React.useState('rgba(205, 127, 50, .7)');
-
-  // const barColor = React.useRef('rgba');
+  const gradientId = "contest-prize";
+  const [barColor, setBarColor] = React.useState({
+    start: '#40E0D0', end: '#CD7F32',
+  });
 
   const tiers = {
     Bronze: { min: 0.00, max: 200.00 },
-    Silver: { min: 251.00, max: 350.00 },
-    Gold: { min: 351.00, max: 500.00 },
+    Silver: { min: 201.00, max: 350.00 },
+    Gold: { min: 351.00, max: 500 },
   }
 
   const getTier = () => Object.keys(tiers).find(key => currentFundingDecimal >= tiers[key].min && currentFundingDecimal <= tiers[key].max)
 
   React.useEffect(() => {
     if (currentFunding) {
-      console.log('Tier', getTier());
       currentTier.current = getTier();
 
-
       if (currentTier.current === 'Silver') {
-        setBarColor('rgba(192,192,192, .7)')
+        setBarColor({ start: '#CD7F32', end: '#C0C0C0'})
       } else if (currentTier.current === 'Gold') {
-        setBarColor('rgba(255,215,0, .7)')
+        setBarColor({ start: '#C0C0C0', end: '#D4AF37'})
       }
     }
     return () => { }
@@ -39,33 +39,43 @@ const GoalRing = ({ currentFunding }) => {
   }
 
   return (
-    <div className="circle-wrapper">
+    <div className="ring-wrapper">
+      <svg style={{ height: 0 }}>
+        <defs>
+          <linearGradient id={gradientId} gradientTransform="rotate(120)">
+            <stop offset="0%" stopColor={barColor.start} />
+            <stop offset="50%" stopColor={barColor.end} />
+          </linearGradient>
+        </defs>
+      </svg>
       <CircularProgressbarWithChildren
         value={currentFunding / tiers[currentTier.current].max}
         // text={Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currentFundingDecimal)}
-        strokeWidth={14}
-        styles={buildStyles({
-          // Rotation of path and trail, in number of turns (0-1)
-          rotation: 0.5,
-
-          // Whether to use rounded or flat corners on the ends - can use 'butt' or 'round'
-          strokeLinecap: 'butt',
-
-          // Text size
-          textSize: '10px',
-
-          // How long animation takes to go from one percentage to another, in seconds
-          pathTransitionDuration: 0.5,
-
-          // Can specify path transition in more detail, or remove it entirely
-          // pathTransition: 'none',
-
-          // Colors
-          pathColor: barColor,
-          textColor: 'rgba(0, 0, 0, 0.54)',
-          trailColor: '#fafafa',
-          backgroundColor: '#000',
-        })}
+        strokeWidth={20}
+        secondaryColor='transparent'
+        fill='transparent'
+        styles={{
+          path: {
+            stroke: `url(#${gradientId})`,
+            width: '100%',
+            strokeLinecap: 'butt',
+            transform: 'rotate(0.5turn)',
+            transformOrigin: 'center center',
+            boxShadow: '4px 0 rgba(0, 0, 0, 0.25)'
+          },
+          background: {
+            fill: '#000',
+          },
+          root: { filter: 'drop-shadow(0.5px 1px 2px rgba(0, 0, 0, 0.25))', },
+          trail: {
+            stroke: '#fafafa',
+            strokeLinecap: 'butt',
+          },
+          text: {
+            fill: 'rgba(0, 0, 0, 0.54)',
+            fontSize: '10px',
+          }
+        }}
       >
         <div
           className="separator"
@@ -77,8 +87,8 @@ const GoalRing = ({ currentFunding }) => {
         </div>
         <div className="marker" />
       </CircularProgressbarWithChildren>
-      <label class="banner">{`${currentTier.current} Goal`}</label>
-      <label class="goal-number">{Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(tiers[currentTier.current].max)}</label>
+      <span class="banner">{`${currentTier.current} Goal`}</span>
+      <span class="goal-number">{Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(tiers[currentTier.current].max)}</span>
     </div>
   )
 }

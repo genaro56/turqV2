@@ -79,7 +79,7 @@ class ContestPage extends React.Component {
                   <Grid container item direction="column" spacing={5}>
                     <Grid container justify="center" align="center">
                       <Grid item xs={4}>
-                        <GoalRing currentFunding={contest.prize}/>
+                        <GoalRing currentFunding={20100}/>
                       </Grid>
                     </Grid>
                     <Grid item>

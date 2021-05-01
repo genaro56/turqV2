@@ -8,6 +8,7 @@ import 'axios-progress-bar/dist/nprogress.css'
 import 'draft-js/dist/Draft.css';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-toastify/dist/ReactToastify.css';
+import GradientSVG from './components/legislation/gradientSvg';
 
 ReactDOM.render(
   <React.StrictMode>
